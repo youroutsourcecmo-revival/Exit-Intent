@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exit Intent - Advanced Revenue Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: rgba(139, 0, 0, 0.9);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
+        }
+        
+        .calculator-container {
+            max-width: 375px;
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            border: 3px solid #FFD700;
+            overflow: hidden;
+            position: relative;
+            animation: slideInUp 0.6s ease, breathingGlow 3s ease-in-out infinite;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @keyframes breathingGlow {
+            0%, 100% {
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.4);
+                border-color: #FFD700;
+            }
+            50% {
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.8);
+                border-color: #FFA500;
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(100px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes flash {
+            0% {
+                opacity: 1;
+                color: #32CD32;
+                text-shadow: 0 0 5px #32CD32;
+            }
+            50% {
+                opacity: 0.3;
+                color: #90EE90;
+                text-shadow: 0 0 10px #90EE90;
+            }
+            100% {
+                opacity: 1;
+                color: #32CD32;
+                text-shadow: 0 0 5px #32CD32;
+            }
+        }
+
+        .flash-text {
+            animation: flash 0.8s ease-in-out infinite;
+            display: inline-block;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10;
+            transition: background 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .refresh-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 10;
+            transition: background 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 100%);
+            color: white;
+            padding: 20px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M20 20c0 11.046-8.954 20-20 20v-40c11.046 0 20 8.954 20 20zM0 20c0-11.046 8.954-20 20-20v40c-11.046 0-20-8.954-20-20z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .header h1 {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
+        }
+        
+        .header-instruction {
+            font-size: 0.9rem;
+            color: #FFD700;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .main-input-area {
+            flex: 1;
+            padding: 30px 25px;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .question-container {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .question-title {
+            color: #FFD700;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        
+        .input-wrapper {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .main-select {
+            width: 100%;
+            padding: 18px 22px;
+            border: 3px solid #FFD700;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23FFD700' d='M13.854 5.146L8 10.999 2.146 5.146A.5.5 0 00.853 5.854L7.5 12.5a.707.707 0 001 0l6.647-6.646a.5.5 0 00-.293-.854z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            padding-right: 55px;
+            cursor: pointer;
+        }
+        
+        .main-select:focus {
+            outline: none;
+            border-color: #FFA500;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        
+        .main-select option {
+            background: #2D2D2D;
+            color: white;
+            padding: 15px;
+            font-size: 1rem;
+        }
+        
+        .main-select option:first-child {
+            color: #FFD700;
+            font-weight: 600;
+        }
+        
+        .yes-no-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .yes-no-btn {
+            flex: 1;
+            padding: 18px 25px;
+            border: 3px solid #FFD700;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #FFD700;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 60px;
+        }
+        
+        .yes-no-btn:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .yes-no-btn.selected {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+        }
+        
+        .price-container, .customer-container {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .price-controls, .customer-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .price-btn, .customer-btn {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            user-select: none;
+        }
+        
+        .price-btn:hover, .customer-btn:hover {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+        
+        .price-btn:active, .customer-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .price-display {
+            background: rgba(0,0,0,0.8);
+            border: 3px solid #FFD700;
+            border-radius: 16px;
+            padding: 15px 25px;
+            color: #FFD700;
+            font-size: 1.6rem;
+            font-weight: bold;
+            min-width: 160px;
+            text-align: center;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);
+        }
+        
+        .customer-display {
+            background: rgba(0,0,0,0.8);
+            border: 3px solid #FFD700;
+            border-radius: 16px;
+            padding: 15px 25px;
+            color: #FFD700;
+            min-width: 160px;
+            text-align: center;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+        
+        .customer-number {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        
+        .customer-label {
+            font-size: 10pt;
+            font-weight: normal;
+            margin-bottom: 2px;
+        }
+        
+        .price-hint, .customer-hint {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        .calculate-button {
+            width: 100%;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            border: none;
+            padding: 20px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            min-height: 60px;
+        }
+        
+        .calculate-button:hover {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.6);
+        }
+        
+        .calculate-button:active {
+            transform: translateY(0);
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            background: #FFD700;
+            transform: scale(1.2);
+        }
+        
+        .step-dot.completed {
+            background: #32CD32;
+        }
+        
+        .interaction-hint {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        .tap-icon {
+            color: #FFD700;
+            font-size: 1rem;
+        }
+
+        .disclaimer {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #FFD700;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.75rem;
+            line-height: 1.3;
+            text-align: center;
+        }
+        
+        /* Enhanced mobile responsiveness */
+        @media (max-width: 414px) {
+            .calculator-container {
+                margin: 10px;
+                height: calc(100vh - 20px);
+                max-height: 600px;
+            }
+            
+            .header {
+                padding: 16px 18px;
+            }
+            
+            .header h1 {
+                font-size: 1.2rem;
+                margin-bottom: 6px;
+            }
+            
+            .header-instruction {
+                font-size: 0.85rem;
+            }
+            
+            .main-input-area {
+                padding: 25px 20px;
+            }
+            
+            .question-title {
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+            }
+            
+            .main-select {
+                padding: 16px 20px;
+                font-size: 1rem;
+                min-height: 55px;
+            }
+            
+            .yes-no-btn {
+                padding: 16px 20px;
+                font-size: 1rem;
+                min-height: 55px;
+            }
+            
+            .price-controls, .customer-controls {
+                gap: 15px;
+            }
+            
+            .price-btn, .customer-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .price-display {
+                font-size: 1.4rem;
+                padding: 12px 20px;
+                min-width: 140px;
+            }
+            
+            .customer-display {
+                padding: 12px 20px;
+                min-width: 140px;
+            }
+            
+            .customer-number {
+                font-size: 1.4rem;
+            }
+            
+            .customer-label {
+                font-size: 9pt;
+            }
+            
+            .calculate-button {
+                padding: 18px;
+                font-size: 1.1rem;
+            }
+
+            .disclaimer {
+                font-size: 0.7rem;
+                padding: 10px;
+            }
+        }
+        
+        /* Landscape mobile optimization */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .calculator-container {
+                height: 90vh;
+                max-height: 450px;
+            }
+            
+            .header {
+                padding: 12px 18px;
+            }
+            
+            .header h1 {
+                font-size: 1.1rem;
+                margin-bottom: 4px;
+            }
+            
+            .header-instruction {
+                font-size: 0.8rem;
+            }
+            
+            .main-input-area {
+                padding: 20px;
+                gap: 15px;
+            }
+            
+            .question-title {
+                font-size: 1rem;
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <button class="close-btn" onclick="closeCalculator()" aria-label="Close calculator">&times;</button>
+        <button class="refresh-btn" onclick="refreshCalculator()" aria-label="Refresh calculator">🔄</button>
+
+        <div class="header">
+            <h1 id="headerTitle">DISCOVER YOUR HIDDEN REVENUE GOLDMINE</h1>
+            <div class="header-instruction">Discover your annual revenue potential in 6 clicks</div>
+        </div>
+        
+        <div class="main-input-area" id="mainInputArea">
+            <div class="step-indicator" id="stepIndicator">
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+            
+            <div class="question-container" id="questionContainer">
+                <!-- Questions will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /*
+        ADVANCED EXIT INTENT CALCULATOR - PRODUCTION VERSION 3.1
+        
+        FEATURES:
+        - 6-step revenue calculation process
+        - Cost of waiting/delay calculations with urgency modeling
+        - Enhanced opportunity cost for paid advertising businesses
+        - A/B testing headlines
+        - Mobile-responsive design
+        - FTC-compliant disclaimers
+        - Production redirect to results page
+        */
+        
+        // Global state management
+        let calculatorData = {
+            businessType: '',
+            mainService: '',
+            servicePrice: 0,
+            hasAdvertising: false,
+            monthlyAdSpend: 0,
+            customerCount: 500
+        };
+        
+        let currentStep = 1;
+        let isProcessing = false;
+        let currentPrice = 0;
+        let currentAdSpend = 0;
+        let currentCustomers = 500;
+        let priceTimeout = null;
+        let adSpendTimeout = null;
+        let customerTimeout = null;
+        
+        // A/B Testing Headlines
+        const headerVariations = [
+            { title: "DISCOVER YOUR HIDDEN REVENUE GOLDMINE" },
+            { title: "YOUR CUSTOMERS ARE WAITING TO BUY AGAIN" },
+            { title: "UNLOCK THOUSANDS IN DORMANT REVENUE" },
+            { title: "CALCULATE THE REVENUE HIDEING UNDER YOUR NOSE" },
+            { title: "DISCOVER YOUR ANNUAL REVENUE POTENTIAL" },
+            { title: "YOUR CUSTOMER DATABASE IS PURE GOLD" },
+            { title: "INFINITE ROI OPPORTUNITY AWAITS YOU" },
+            { title: "YOUR REVENUE POTENTIAL IS BIGGER THAN YOU THINK" },
+            { title: "DISCOVER THOUSANDS IN HIDDEN REVENUE" },
+            { title: "YOUR CUSTOMERS WANT TO SPEND MORE" },
+            { title: "UNLOCK YOUR DORMANT REVENUE STREAM" }
+        ];
+        
+        // Business Service Mappings
+        const serviceMap = {
+            'Car Detailing': ['Ceramic Coating', 'Paint Protection Film', 'Full Detail Package', 'Interior Deep Clean', 'Paint Correction'],
+            'Cosmetic Surgery': ['Breast Augmentation', 'Tummy Tuck', 'Liposuction', 'Facelift', 'Brazilian Butt Lift'],
+            'Cosmetic Dentistry': ['Veneers', 'Teeth Whitening', 'Dental Implants', 'Invisalign', 'Smile Makeover'],
+            'Med Spa': ['Botox', 'Dermal Fillers', 'Laser Hair Removal', 'CoolSculpting', 'Chemical Peels'],
+            'General Dentistry': ['Dental Implants', 'Crowns', 'Root Canal', 'Teeth Cleaning', 'Oral Surgery'],
+            'Dermatology': ['Laser Treatments', 'Botox', 'Acne Treatment', 'Skin Cancer Screening', 'Chemical Peels'],
+            'Hair Restoration': ['Hair Transplant', 'PRP Therapy', 'Scalp Micropigmentation', 'Hair Loss Treatment', 'FUE Procedure'],
+            'Ophthalmology': ['LASIK Surgery', 'Cataract Surgery', 'Retinal Treatment', 'Glaucoma Treatment', 'Eye Exams'],
+            'Chiropractic': ['Spinal Adjustment', 'Physical Therapy', 'Massage Therapy', 'Pain Management', 'Wellness Care']
+        };
+        
+        // Industry-Specific Starting Prices
+        const startingPrices = {
+            'Car Detailing': 500, 'Cosmetic Surgery': 8000, 'Cosmetic Dentistry': 2000,
+            'Med Spa': 800, 'General Dentistry': 1000, 'Dermatology': 600,
+            'Hair Restoration': 8000, 'Ophthalmology': 4000, 'Chiropractic': 200
+        };
+        
+        // UI State Management Functions
+        function updateStepIndicator(step) {
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active', 'completed');
+                if (index < step - 1) {
+                    dot.classList.add('completed');
+                } else if (index === step - 1) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+        
+        // STEP 1: Business Type Selection
+        function showBusinessTypeQuestion() {
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = `
+                <div class="question-title">Kevin's 1st 5-day campaign netted him $73K… <span style="color: #32CD32; font-weight: 800;" class="flash-text">LET'S CALCULATE YOURS!</span> What type of business do you run?</div>
+                <div class="input-wrapper">
+                    <select class="main-select" id="businessSelect" onchange="selectBusinessType()" aria-label="Select your business type">
+                        <option value="">👆 Tap here to select your business type</option>
+                        <option value="Car Detailing">Car Detailing</option>
+                        <option value="Cosmetic Surgery">Cosmetic Surgery</option>
+                        <option value="Cosmetic Dentistry">Cosmetic Dentistry</option>
+                        <option value="Med Spa">Med Spa</option>
+                        <option value="General Dentistry">General Dentistry</option>
+                        <option value="Dermatology">Dermatology</option>
+                        <option value="Hair Restoration">Hair Restoration</option>
+                        <option value="Ophthalmology">Ophthalmology</option>
+                        <option value="Chiropractic">Chiropractic</option>
+                    </select>
+                </div>
+                <div class="interaction-hint">
+                    <span class="tap-icon">👆</span>
+                    Tap the dropdown to select your business type
+                </div>
+            `;
+        }
+        
+        function selectBusinessType() {
+            if (isProcessing) return;
+            
+            const select = document.getElementById('businessSelect');
+            const value = select.value;
+            
+            if (!value) return;
+            
+            isProcessing = true;
+            calculatorData.businessType = value;
+            currentStep = 2;
+            updateStepIndicator(currentStep);
+            
+            setTimeout(() => {
+                showServiceQuestion();
+                isProcessing = false;
+            }, 500);
+        }
+        
+        // STEP 2: Service Selection
+        function showServiceQuestion() {
+            const container = document.getElementById('questionContainer');
+            const services = serviceMap[calculatorData.businessType] || ['Custom Service'];
+            
+            let optionsHTML = '<option value="">👆 Tap here to select your most profitable service</option>';
+            services.forEach(service => {
+                optionsHTML += `<option value="${service}">${service}</option>`;
+            });
+            
+            container.innerHTML = `
+                <div class="question-title">Which offering earns you the most profit?</div>
+                <div class="input-wrapper">
+                    <select class="main-select" id="serviceSelect" onchange="selectService()" aria-label="Select your most profitable service">
+                        ${optionsHTML}
+                    </select>
+                </div>
+                <div class="interaction-hint">
+                    <span class="tap-icon">👆</span>
+                    Select your highest profit margin service
+                </div>
+            `;
+        }
+        
+        function selectService() {
+            if (isProcessing) return;
+            
+            const select = document.getElementById('serviceSelect');
+            const value = select.value;
+            
+            if (!value) return;
+            
+            isProcessing = true;
+            calculatorData.mainService = value;
+            currentStep = 3;
+            updateStepIndicator(currentStep);
+            
+            setTimeout(() => {
+                showPriceQuestion();
+                isProcessing = false;
+            }, 500);
+        }
+        
+        // STEP 3: Price Selection
+        function showPriceQuestion() {
+            const container = document.getElementById('questionContainer');
+            const startingPrice = startingPrices[calculatorData.businessType] || 500;
+            currentPrice = startingPrice;
+            
+            container.innerHTML = `
+                <div class="price-container">
+                    <div class="question-title">What do you charge for ${calculatorData.mainService}?</div>
+                    <div class="price-controls">
+                        <button class="price-btn" onclick="adjustPrice(-50)" aria-label="Decrease price">−</button>
+                        <div class="price-display" id="priceDisplay">$${startingPrice.toLocaleString()}</div>
+                        <button class="price-btn" onclick="adjustPrice(50)" aria-label="Increase price">+</button>
+                    </div>
+                    <div class="price-hint">Use +/- buttons to adjust • Auto-advances in 2 seconds</div>
+                </div>
+            `;
+        }
+        
+        function adjustPrice(amount) {
+            if (isProcessing) return;
+            
+            currentPrice += amount;
+            if (currentPrice < 50) currentPrice = 50;
+            if (currentPrice > 50000) currentPrice = 50000;
+            
+            document.getElementById('priceDisplay').textContent = `$${currentPrice.toLocaleString()}`;
+            
+            if (priceTimeout) clearTimeout(priceTimeout);
+            
+            priceTimeout = setTimeout(() => {
+                selectPrice();
+            }, 2000);
+        }
+        
+        function selectPrice() {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            calculatorData.servicePrice = currentPrice;
+            currentStep = 4;
+            updateStepIndicator(currentStep);
+            
+            setTimeout(() => {
+                showAdvertisingQuestion();
+                isProcessing = false;
+            }, 500);
+        }
+        
+        // STEP 4: Advertising Question
+        function showAdvertisingQuestion() {
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = `
+                <div class="question-title">Are you currently spending money on paid advertising? (Google Ads, Facebook Ads, etc.)</div>
+                <div class="yes-no-buttons">
+                    <button class="yes-no-btn" id="yesBtn" onclick="selectAdvertising(true)">Yes</button>
+                    <button class="yes-no-btn" id="noBtn" onclick="selectAdvertising(false)">No</button>
+                </div>
+                <div class="interaction-hint">
+                    <span class="tap-icon">👆</span>
+                    Tap Yes or No to continue
+                </div>
+            `;
+        }
+        
+        function selectAdvertising(hasAds) {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            calculatorData.hasAdvertising = hasAds;
+            
+            // Update button states
+            document.getElementById('yesBtn').classList.toggle('selected', hasAds);
+            document.getElementById('noBtn').classList.toggle('selected', !hasAds);
+            
+            currentStep = 5;
+            updateStepIndicator(currentStep);
+            
+            setTimeout(() => {
+                if (hasAds) {
+                    showAdSpendQuestion();
+                } else {
+                    calculatorData.monthlyAdSpend = 0;
+                    currentStep = 6;
+                    updateStepIndicator(currentStep);
+                    setTimeout(() => {
+                        showCustomerQuestion();
+                    }, 300);
+                }
+                isProcessing = false;
+            }, 800);
+        }
+        
+        // STEP 5: Ad Spend Question (only if they have advertising)
+        function showAdSpendQuestion() {
+            const container = document.getElementById('questionContainer');
+            currentAdSpend = 2000; // Starting point
+            
+            container.innerHTML = `
+                <div class="price-container">
+                    <div class="question-title">What do you spend monthly on advertising?</div>
+                    <div class="price-controls">
+                        <button class="price-btn" onclick="adjustAdSpend(-100)" aria-label="Decrease ad spend">−</button>
+                        <div class="price-display" id="adSpendDisplay">$${currentAdSpend.toLocaleString()}</div>
+                        <button class="price-btn" onclick="adjustAdSpend(100)" aria-label="Increase ad spend">+</button>
+                    </div>
+                    <div class="price-hint">Use +/- buttons to adjust • Auto-advances in 2 seconds</div>
+                </div>
+            `;
+        }
+        
+        function adjustAdSpend(amount) {
+            if (isProcessing) return;
+            
+            currentAdSpend += amount;
+            if (currentAdSpend < 100) currentAdSpend = 100;
+            if (currentAdSpend > 50000) currentAdSpend = 50000;
+            
+            document.getElementById('adSpendDisplay').textContent = `$${currentAdSpend.toLocaleString()}`;
+            
+            if (adSpendTimeout) clearTimeout(adSpendTimeout);
+            
+            adSpendTimeout = setTimeout(() => {
+                selectAdSpend();
+            }, 2000);
+        }
+        
+        function selectAdSpend() {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            calculatorData.monthlyAdSpend = currentAdSpend;
+            currentStep = 6;
+            updateStepIndicator(currentStep);
+            
+            setTimeout(() => {
+                showCustomerQuestion();
+                isProcessing = false;
+            }, 500);
+        }
+        
+        // STEP 6: Customer Count Selection
+        function showCustomerQuestion() {
+            const container = document.getElementById('questionContainer');
+            currentCustomers = 500;
+            
+            container.innerHTML = `
+                <div class="customer-container">
+                    <div class="question-title">How many past customers have you served that you would love to see <span style="color: #32CD32; font-weight: 800;">spend with you again</span>? (Kevin had 780) Your best guess.</div>
+                    <div class="customer-controls">
+                        <button class="customer-btn" onclick="adjustCustomers(-10)" aria-label="Decrease customer count">−</button>
+                        <div class="customer-display" id="customerDisplay">
+                            <div class="customer-number">${currentCustomers}</div>
+                            <div class="customer-label">dormant</div>
+                            <div class="customer-label">customers</div>
+                        </div>
+                        <button class="customer-btn" onclick="adjustCustomers(10)" aria-label="Increase customer count">+</button>
+                    </div>
+                    <div class="customer-hint">Use +/- buttons to adjust by 10 • Auto-advances in 2 seconds</div>
+                </div>
+            `;
+        }
+        
+        function adjustCustomers(amount) {
+            if (isProcessing) return;
+            
+            currentCustomers += amount;
+            if (currentCustomers < 10) currentCustomers = 10;
+            if (currentCustomers > 10000) currentCustomers = 10000;
+            
+            document.getElementById('customerDisplay').innerHTML = `
+                <div class="customer-number">${currentCustomers.toLocaleString()}</div>
+                <div class="customer-label">dormant</div>
+                <div class="customer-label">customers</div>
+            `;
+            
+            if (customerTimeout) clearTimeout(customerTimeout);
+            
+            customerTimeout = setTimeout(() => {
+                selectCustomers();
+            }, 2000);
+        }
+        
+        function selectCustomers() {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            calculatorData.customerCount = currentCustomers;
+            
+            setTimeout(() => {
+                showCalculateButton();
+                isProcessing = false;
+            }, 500);
+        }
+        
+        // FINAL STEP: Calculate Button & Redirect
+        function showCalculateButton() {
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = `
+                <div class="question-title">Perfect! See your annual revenue potential vs advertising costs</div>
+                <div class="input-wrapper">
+                    <button class="calculate-button" onclick="calculateAdvancedRevenue()">Calculate My ROI</button>
+                </div>
+                <div class="disclaimer">
+                    Projections are estimates based on inputs provided and industry data. Actual results vary significantly based on individual business factors. No earnings are guaranteed. This tool is for informational purposes only and does not constitute financial or business advice.
+                </div>
+                <div class="interaction-hint">
+                    <span class="tap-icon">🚀</span>
+                    Tap to reveal your annual revenue potential
+                </div>
+            `;
+        }
+        
+        function calculateAdvancedRevenue() {
+            // Advanced 12-month calculation with email fatigue and database growth
+            const initialResponseRate = 0.18; // 18% for existing customers
+            const emailFatigueDecline = 0.15; // 15% decline per campaign
+            const monthlyDatabaseGrowth = 0.10; // 10% monthly growth
+            
+            let totalAnnualRevenue = 0;
+            let monthlyBreakdown = [];
+            let currentCustomerBase = calculatorData.customerCount;
+            let currentResponseRate = initialResponseRate;
+            
+            // Calculate 12 months of campaigns
+            for (let month = 1; month <= 12; month++) {
+                const expectedResponses = Math.round(currentCustomerBase * currentResponseRate);
+                const monthlyRevenue = expectedResponses * calculatorData.servicePrice;
+                
+                monthlyBreakdown.push({
+                    month: month,
+                    customerBase: Math.round(currentCustomerBase),
+                    responseRate: (currentResponseRate * 100).toFixed(1),
+                    expectedResponses: expectedResponses,
+                    monthlyRevenue: monthlyRevenue
+                });
+                
+                totalAnnualRevenue += monthlyRevenue;
+                
+                // Apply growth and fatigue for next month
+                currentCustomerBase *= (1 + monthlyDatabaseGrowth);
+                currentResponseRate *= (1 - emailFatigueDecline);
+                
+                // Floor response rate at 5% to prevent unrealistic decline
+                if (currentResponseRate < 0.05) currentResponseRate = 0.05;
+            }
+            
+            // Calculate advertising cost comparison and cost of waiting
+            const annualAdSpend = calculatorData.monthlyAdSpend * 12;
+            const netSavings = annualAdSpend;
+            const totalROI = totalAnnualRevenue + netSavings;
+            
+            // Cost of Waiting Calculations
+            const weeklyRevenuePotential = totalAnnualRevenue / 52;
+            const weeklyAdWaste = calculatorData.monthlyAdSpend / 4.33;
+            const totalWeeklyCostOfDelay = weeklyRevenuePotential + (calculatorData.hasAdvertising ? weeklyAdWaste : 0);
+            
+            // Cost breakdown for different delay periods
+            const costBreakdown = {
+                oneWeek: Math.round(totalWeeklyCostOfDelay),
+                twoWeeks: Math.round(totalWeeklyCostOfDelay * 2),
+                oneMonth: Math.round(totalWeeklyCostOfDelay * 4.33),
+                threeMonths: Math.round(totalWeeklyCostOfDelay * 13),
+                sixMonths: Math.round(totalWeeklyCostOfDelay * 26)
+            };
+            
+            // Prepare redirect URL with all parameters
+            const params = new URLSearchParams({
+                // Input Data
+                businessType: calculatorData.businessType,
+                service: calculatorData.mainService,
+                price: calculatorData.servicePrice,
+                customers: calculatorData.customerCount,
+                hasAdvertising: calculatorData.hasAdvertising,
+                monthlyAdSpend: calculatorData.monthlyAdSpend,
+                
+                // Annual Results
+                totalAnnualRevenue: Math.round(totalAnnualRevenue),
+                annualAdSpend: annualAdSpend,
+                netSavings: netSavings,
+                totalROI: Math.round(totalROI),
+                
+                // Cost of Waiting/Delay
+                weeklyRevenuePotential: Math.round(weeklyRevenuePotential),
+                weeklyAdWaste: Math.round(weeklyAdWaste),
+                totalWeeklyCostOfDelay: Math.round(totalWeeklyCostOfDelay),
+                costOfDelay1Week: costBreakdown.oneWeek,
+                costOfDelay2Weeks: costBreakdown.twoWeeks,
+                costOfDelay1Month: costBreakdown.oneMonth,
+                costOfDelay3Months: costBreakdown.threeMonths,
+                costOfDelay6Months: costBreakdown.sixMonths,
+                
+                // Monthly Breakdown (JSON encoded)
+                monthlyBreakdown: JSON.stringify(monthlyBreakdown),
+                
+                // Metadata
+                timestamp: Date.now(),
+                version: '3.1'
+            });
+            
+            // Redirect to results page
+            const revealUrl = `https://youroutsourcecmo.com/big-reveal.html?${params.toString()}`;
+            window.location.href = revealUrl;
+        }
+        
+        // Utility Functions
+        function closeCalculator() {
+            if (confirm('Are you sure you want to close this calculator? You\'ll lose your progress.')) {
+                document.body.style.display = 'none';
+            }
+        }
+        
+        function refreshCalculator() {
+            calculatorData = {
+                businessType: '',
+                mainService: '',
+                servicePrice: 0,
+                hasAdvertising: false,
+                monthlyAdSpend: 0,
+                customerCount: 500
+            };
+            
+            currentStep = 1;
+            isProcessing = false;
+            currentPrice = 0;
+            currentAdSpend = 0;
+            currentCustomers = 500;
+            
+            if (priceTimeout) clearTimeout(priceTimeout);
+            if (adSpendTimeout) clearTimeout(adSpendTimeout);
+            if (customerTimeout) clearTimeout(customerTimeout);
+            priceTimeout = null;
+            adSpendTimeout = null;
+            customerTimeout = null;
+            
+            startCalculator();
+        }
+        
+        function initializeHeader() {
+            const randomIndex = Math.floor(Math.random() * headerVariations.length);
+            const selected = headerVariations[randomIndex];
+            document.getElementById('headerTitle').textContent = selected.title;
+        }
+        
+        function startCalculator() {
+            initializeHeader();
+            updateStepIndicator(1);
+            showBusinessTypeQuestion();
+        }
+        
+        // Event Listeners and Initialization
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCalculator();
+            }
+        });
+        
+        document.body.style.overflow = 'hidden';
+        
+        // Initialize the calculator
+        startCalculator();
+    </script>
+</body>
+</html>
