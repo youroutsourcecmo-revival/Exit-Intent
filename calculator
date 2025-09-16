@@ -623,8 +623,8 @@
         // Business Service Mappings
         const serviceMap = {
             'Car Detailing': ['Ceramic Coating', 'Paint Protection Film', 'Full Detail Package', 'Interior Deep Clean', 'Paint Correction'],
-            'Cosmetic Surgery': ['Breast Augmentation', 'Tummy Tuck', 'Liposuction', 'Facelift', 'Brazilian Butt Lift'],
-            'Cosmetic Dentistry': ['Veneers', 'Teeth Whitening', 'Dental Implants', 'Invisalign', 'Smile Makeover'],
+            'Cosmetic Surgery': ['Botox Injections', 'Dermal Fillers', 'Chemical Peels', 'Laser Hair Removal', 'Microneedling with PRP'],
+            'Cosmetic Dentistry': ['Teeth Whitening', 'Cosmetic Bonding', 'Gum Contouring', 'Single Veneer', 'Invisalign Express'],
             'Med Spa': ['Botox', 'Dermal Fillers', 'Laser Hair Removal', 'CoolSculpting', 'Chemical Peels'],
             'General Dentistry': ['Dental Implants', 'Crowns', 'Root Canal', 'Teeth Cleaning', 'Oral Surgery'],
             'Dermatology': ['Laser Treatments', 'Botox', 'Acne Treatment', 'Skin Cancer Screening', 'Chemical Peels'],
@@ -635,9 +635,9 @@
         
         // Industry-Specific Starting Prices
         const startingPrices = {
-            'Car Detailing': 500, 'Cosmetic Surgery': 8000, 'Cosmetic Dentistry': 2000,
+            'Car Detailing': 500, 'Cosmetic Surgery': 1000, 'Cosmetic Dentistry': 1000,
             'Med Spa': 800, 'General Dentistry': 1000, 'Dermatology': 600,
-            'Hair Restoration': 8000, 'Ophthalmology': 4000, 'Chiropractic': 200
+            'Hair Restoration': 1000, 'Ophthalmology': 1000, 'Chiropractic': 200
         };
         
         // UI State Management Functions
